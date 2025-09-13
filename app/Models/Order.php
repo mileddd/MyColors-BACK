@@ -19,6 +19,7 @@ class Order extends Model
         'order_date',
         'user_id',
         'order_status',
+        'order_canceled',
         'order_amount'
     ];
 }

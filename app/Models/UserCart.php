@@ -17,6 +17,7 @@ class UserCart extends Model
 
     protected $fillable = [
         'product_id',
-        'user_id'
+        'user_id',
+        'usercart_qty'
     ];
 }
