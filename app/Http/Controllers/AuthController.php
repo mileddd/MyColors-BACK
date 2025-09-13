@@ -6,33 +6,26 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Validator;
+use App\Services\AuthService;
+use App\Http\Requests\LoginRequest;
 
 class AuthController extends ApiController
 {
-    public function login(Request $request)
+    protected $authService;
+
+    public function __construct(AuthService $authService)
     {
-        $validator = Validator::make($request->all(), [
-            'username' => 'required|string',
-            'password' => 'required|string',
-        ]);
+        $this->authService = $authService;
+    }
 
-        if ($validator->fails()) {
-            return ApiController::errorResponse($validator->errors(), 401);
+    public function login(LoginRequest $request)
+    {
+        $result = $this->authService->login($request->only(['username', 'password']));
+
+        if (!$result) {
+            return $this->errorResponse('Invalid credentials !', 401);
         }
 
-        // Find user
-        $user = User::where([
-            ['username', $request->username],
-            ['password','like',$request->password]
-        ])->first();
-
-        if( !$user )
-        {
-            return ApiController::errorResponse('Invalid credentials !', 401);
-        }
-        // Generate token (using Laravel Sanctum or simple token for now)
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return ApiController::successResponse('Login successful !', 200, $token);
+        return $this->successResponse('Login successful !', 200, $result['token']);
     }
 }

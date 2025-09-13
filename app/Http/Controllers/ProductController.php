@@ -4,14 +4,21 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
-use App\Models\Product;
+use App\Services\ProductService;
 
 class ProductController extends ApiController
 {
+    protected $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
     public function fetchProducts(Request $request)
     {
-        $products = Product::orderBy('product_name')->get();
+        $products = $this->productService->fetchAll();
 
-        return ApiController::successResponse($products,200);
+        return $this->successResponse($products, 200);
     }
 }
